@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RNA na Prática — Painel de Gravações</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0e0e0f;
+  --bg2: #161618;
+  --bg3: #1e1e21;
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.12);
+  --text: #f0ede8;
+  --muted: #7a7875;
+  --dim: #3a3835;
+  --green: #4ade80;
+  --green-bg: rgba(74,222,128,0.08);
+  --green-border: rgba(74,222,128,0.2);
+  --amber: #fbbf24;
+  --amber-bg: rgba(251,191,36,0.08);
+  --amber-border: rgba(251,191,36,0.2);
+  --blue: #60a5fa;
+  --blue-bg: rgba(96,165,250,0.08);
+  --blue-border: rgba(96,165,250,0.2);
+  --red: #f87171;
+  --red-bg: rgba(248,113,113,0.08);
+  --red-border: rgba(248,113,113,0.25);
+  --radius: 10px;
+  --radius-sm: 6px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Syne', sans-serif;
+  min-height: 100vh;
+  padding: 0;
+}
+
+/* HEADER */
+.header {
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  padding: 1rem 1.25rem;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.header-left { display: flex; align-items: center; gap: 10px; }
+.logo-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--green); box-shadow: 0 0 8px var(--green); }
+.header-title { font-size: 15px; font-weight: 700; letter-spacing: .01em; }
+.header-sub { font-size: 11px; color: var(--muted); font-family: 'DM Mono', monospace; }
+
+/* TABS */
+.tabs-wrap {
+  padding: 1rem 1.25rem 0;
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.tabs-wrap::-webkit-scrollbar { display: none; }
+.tab {
+  padding: 7px 16px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  font-size: 12px;
+  font-weight: 500;
+  font-family: 'Syne', sans-serif;
+  cursor: pointer;
+  background: transparent;
+  color: var(--muted);
+  white-space: nowrap;
+  transition: all .15s;
+}
+.tab:hover { border-color: var(--border2); color: var(--text); }
+.tab.active { background: var(--text); color: var(--bg); border-color: var(--text); }
+
+/* THEME BAR */
+.theme-bar {
+  margin: .75rem 1.25rem;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  background: var(--bg3);
+  border-left: 3px solid var(--green);
+  font-size: 12px;
+  color: var(--muted);
+  font-style: italic;
+  line-height: 1.5;
+}
+
+/* PROGRESS */
+.progress-wrap { padding: 0 1.25rem .75rem; }
+.progress-meta { display: flex; justify-content: space-between; margin-bottom: 6px; }
+.progress-meta span { font-size: 11px; color: var(--muted); font-family: 'DM Mono', monospace; }
+.progress-meta .pct { color: var(--green); }
+.pbar-bg { height: 4px; background: var(--bg3); border-radius: 4px; overflow: hidden; }
+.pbar { height: 4px; background: var(--green); border-radius: 4px; transition: width .4s ease; box-shadow: 0 0 8px rgba(74,222,128,.4); }
+
+/* LEGEND */
+.legend { display: flex; gap: 12px; flex-wrap: wrap; padding: 0 1.25rem .75rem; }
+.leg { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--muted); font-family: 'DM Mono', monospace; }
+.leg-dot { width: 7px; height: 7px; border-radius: 50%; }
+
+/* ALERTS */
+.alerts { padding: 0 1.25rem; display: flex; flex-direction: column; gap: 6px; margin-bottom: .75rem; }
+.alert {
+  padding: 9px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--amber-border);
+  background: var(--amber-bg);
+  font-size: 12px;
+  color: var(--amber);
+  line-height: 1.5;
+}
+.alert strong { font-weight: 700; }
+
+/* SECTIONS */
+.sections { padding: 0 1.25rem 2rem; display: flex; flex-direction: column; gap: 1rem; }
+.section-title {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--dim);
+  margin-bottom: 6px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border);
+  font-family: 'DM Mono', monospace;
+}
+.items { display: flex; flex-direction: column; gap: 4px; }
+
+/* ITEM */
+.item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--bg2);
+  cursor: pointer;
+  transition: all .15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.item:hover { border-color: var(--border2); background: var(--bg3); }
+.item:active { transform: scale(0.99); }
+.item.done { opacity: .45; }
+.item.done .item-lbl { text-decoration: line-through; }
+
+.chk {
+  width: 18px; height: 18px;
+  border-radius: 5px;
+  border: 1.5px solid var(--dim);
+  flex-shrink: 0;
+  margin-top: 1px;
+  display: flex; align-items: center; justify-content: center;
+  transition: all .2s;
+}
+.item.done .chk { background: var(--green); border-color: var(--green); }
+.chk-icon { display: none; }
+.item.done .chk-icon { display: block; }
+
+.item-body { flex: 1; min-width: 0; }
+.item-lbl { font-size: 13px; font-weight: 500; line-height: 1.4; color: var(--text); }
+.item-sub { font-size: 11px; color: var(--muted); margin-top: 3px; line-height: 1.4; font-family: 'DM Mono', monospace; }
+
+.item-right { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; flex-shrink: 0; }
+.item-time { font-size: 10px; color: var(--muted); font-family: 'DM Mono', monospace; text-align: right; }
+.badge {
+  font-size: 10px; font-weight: 600; font-family: 'DM Mono', monospace;
+  padding: 2px 7px; border-radius: 20px;
+  white-space: nowrap;
+}
+.badge-r { background: var(--blue-bg); color: var(--blue); border: 1px solid var(--blue-border); }
+.badge-a { background: var(--amber-bg); color: var(--amber); border: 1px solid var(--amber-border); }
+.badge-ra { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
+.badge-imp { background: var(--red-bg); color: var(--red); border: 1px solid var(--red-border); }
+.badge-gray { background: var(--bg3); color: var(--muted); border: 1px solid var(--border); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <div class="logo-dot"></div>
+    <div>
+      <div class="header-title">RNA na Prática — Miami</div>
+      <div class="header-sub">Painel de Gravações · Abr 2025</div>
+    </div>
+  </div>
+</div>
+
+<div class="tabs-wrap" id="tabs">
+  <button class="tab active" onclick="switchDay(0)">23/04 · Dia 1</button>
+  <button class="tab" onclick="switchDay(1)">24/04 · Dia 2</button>
+  <button class="tab" onclick="switchDay(2)">25/04 · Dia 3</button>
+</div>
+
+<div class="theme-bar" id="theme-bar"></div>
+
+<div class="progress-wrap">
+  <div class="progress-meta">
+    <span id="prog-label">0 de 0 concluídos</span>
+    <span class="pct" id="prog-pct">0%</span>
+  </div>
+  <div class="pbar-bg"><div class="pbar" id="pbar" style="width:0%"></div></div>
+</div>
+
+<div class="legend">
+  <div class="leg"><div class="leg-dot" style="background:#60a5fa"></div>Richard</div>
+  <div class="leg"><div class="leg-dot" style="background:#fbbf24"></div>Ana (stories)</div>
+  <div class="leg"><div class="leg-dot" style="background:#4ade80"></div>Ambos</div>
+  <div class="leg"><div class="leg-dot" style="background:#f87171"></div>Urgente</div>
+</div>
+
+<div class="alerts" id="alerts"></div>
+<div class="sections" id="sections"></div>
+
+<script>
+const days = [
+  {
+    theme: "Sensação de Oportunidade — \"Eu posso ficar milionário!\" · Conteúdo Puro",
+    alerts: [
+      "Depoimentos: gravar na horizontal — nome completo + autorização de imagem.",
+      "Trend parte 1: \"Oi, meu nome é X e hoje é meu primeiro dia no RNA na Prática\" — anotar nomes para fechar no Dia 3.",
+      "Vídeo aluno com Verena: 2 câmeras (uma no aluno, outra na Verena).",
+      "Stories: fazer perguntas aos alunos — não aceitar só \"muito legal\"."
+    ],
+    sections: [
+      { title: "Abertura", items: [
+        {lbl:"Bastidores, espaços e salas", time:"7:00 AM", resp:"ra"},
+        {lbl:"Credenciamento dos alunos", time:"7:00–9:00 AM", resp:"ra"},
+        {lbl:"Abertura dos portões — alunos entrando", time:"9:00 AM", resp:"ra"},
+        {lbl:"Jonathas anuncia Verena no palco", time:"9:30 AM", resp:"r"},
+      ]},
+      { title: "Palestras", items: [
+        {lbl:"P1 · Talk de Abertura — Verena", time:"9:30 AM · 30min", resp:"r"},
+        {lbl:"P2 · Por que investir nos EUA em 2026 — Jonathas", time:"10:00 AM · 1h", resp:"r"},
+        {lbl:"P3 · 6 Pilares para ser verdadeiramente rico — Verena", time:"11:00 AM · 1h15", resp:"r"},
+        {lbl:"Q&A — Rafael + Jonathas no palco", time:"1:15 PM · 30min", resp:"r"},
+        {lbl:"P4 · Como não perder tudo nos EUA — Rafael", time:"1:45 PM · 1h", resp:"r"},
+        {lbl:"P5 · Como comprar um investimento na prática — Jonathas", time:"2:45 PM · 2h", resp:"r", sub:"Notebook espelhando no telão · cadeira no palco"},
+      ]},
+      { title: "Premiação — urgente", items: [
+        {lbl:"P6 · Cerimônia de premiações — Verena + time", time:"5:00 PM · 45min", resp:"ra", imp:true},
+        {lbl:"Painel com alunos premiados (depoimentos) — Verena", time:"5:45 PM · 45min", resp:"r", imp:true, sub:"Horizontal · nome completo · autorização · perguntas: Yago"},
+      ]},
+      { title: "Conteúdo especial", items: [
+        {lbl:"Trend parte 1 — gravar com alunos", time:"ao longo do dia", resp:"ra", imp:true, sub:"Anotar nomes para fechar no Dia 3"},
+        {lbl:"Alunos anotando / prestando atenção", time:"durante palestras", resp:"r", sub:"Se corrido, focar no Dia 2"},
+      ]},
+      { title: "Stories — Ana", items: [
+        {lbl:"Cobrir stories do evento", time:"o dia todo", resp:"a"},
+        {lbl:"Perguntas aos alunos sobre palestras", time:"intervalos", resp:"a"},
+      ]},
+    ]
+  },
+  {
+    theme: "Manhã: Problemas e Dificuldades · Tarde: Pitch — a solução",
+    alerts: [
+      "Break longo de vendas (3:50 PM): gravar alunos interagindo com Rafael e Jonathas nas mesas.",
+      "Lazer Coach 1: notebook + cadeira para Rafael + aluno no palco, espelhando no telão.",
+      "Depoimentos pendentes do Dia 1 — priorizar durante os intervalos."
+    ],
+    sections: [
+      { title: "Abertura", items: [
+        {lbl:"Abertura dos portões — recepção", time:"9:00 AM · 20min", resp:"ra"},
+      ]},
+      { title: "Palestras", items: [
+        {lbl:"P7 · Resumo do Dia 1 — Rafael", time:"9:20 AM · 30min", resp:"r"},
+        {lbl:"Q&A — Rafael + Jonathas", time:"9:50 AM · 30min", resp:"r"},
+        {lbl:"P18 · Como montar sua carteira do zero — Jonathas", time:"10:20 AM · 1h", resp:"r"},
+        {lbl:"P8 · Erros dos imigrantes investidores — Rafael", time:"11:20 AM · 1h", resp:"r"},
+        {lbl:"Q&A — Rafael + Jonathas", time:"1:20 PM · 30min", resp:"r"},
+        {lbl:"P9 · Pré-pitch — Jonathas", time:"1:50 PM · 1h", resp:"r"},
+        {lbl:"P10 · Pitch — Verena", time:"2:50 PM · 1h", resp:"r"},
+      ]},
+      { title: "Break de vendas — urgente", items: [
+        {lbl:"Rafael e Jonathas nas mesas respondendo dúvidas", time:"3:50 PM · 1h", resp:"r", imp:true, sub:"Gravar alunos interagindo com o time"},
+        {lbl:"Q&A sobre o MNA — Verena + time no palco", time:"4:50 PM · 30min", resp:"r"},
+      ]},
+      { title: "Lazer Coach", items: [
+        {lbl:"P11 · Lazer Coach 1 (perfil iniciante) — Rafael", time:"5:20 PM · 1h", resp:"r", sub:"Notebook + cadeira para Rafael + aluno · espelhar no telão"},
+      ]},
+      { title: "Depoimentos pendentes (se houver)", items: [
+        {lbl:"Depoimentos alunos premiados do Dia 1", time:"qualquer intervalo", resp:"r", imp:true, sub:"Horizontal · nome completo · autorização de imagem"},
+      ]},
+      { title: "Stories — Ana", items: [
+        {lbl:"Cobrir stories do evento", time:"o dia todo", resp:"a"},
+        {lbl:"Perguntas aos alunos", time:"intervalos", resp:"a"},
+      ]},
+    ]
+  },
+  {
+    theme: "Motivação e Inspiração para a Decisão Final · Conteúdo + Re-Pitch",
+    alerts: [
+      "Trend parte 2: fechar com os alunos identificados no Dia 1 — não esquecer!",
+      "Celebração MNA (1:50 PM): alunos com camiseta sobem no palco — gravar foto e vídeo em grupo.",
+      "Encerramento (5:20 PM): enviar formulário de feedback no grupo dos alunos."
+    ],
+    sections: [
+      { title: "Abertura", items: [
+        {lbl:"Recepção dos alunos", time:"9:00 AM · 20min", resp:"ra"},
+      ]},
+      { title: "Palestras", items: [
+        {lbl:"P12 · Lazer Coach 2 (perfil carteira existente) — Rafael", time:"9:20 AM · 1h", resp:"r", sub:"Notebook + cadeira para Rafael + aluno · espelhar no telão"},
+        {lbl:"P13 · Re-pitch — Verena", time:"10:20 AM · 30min", resp:"r"},
+        {lbl:"My Team Tells Me (objeções MNA) — Verena + time", time:"10:50 AM · 30min", resp:"r"},
+        {lbl:"P14 · Manutenção de Carteira — Jonathas", time:"11:20 AM · 1h", resp:"r"},
+        {lbl:"Q&A — Jonathas + Rafael", time:"1:20 PM · 30min", resp:"r"},
+        {lbl:"P15 · Não morra trabalhando (aposentadoria) — Verena", time:"2:35 PM · 1h", resp:"r"},
+        {lbl:"P16 · Sucessão e eficiência tributária — Rafael + Verena", time:"3:50 PM · 30min", resp:"r", sub:"Verena entra só no final — gravar separado"},
+        {lbl:"P17 · Downsell próximo evento — Verena", time:"4:20 PM · 1h", resp:"r"},
+      ]},
+      { title: "Momentos especiais — urgente", items: [
+        {lbl:"Celebração alunos MNA — camisetas + foto no palco", time:"1:50 PM · 45min", resp:"ra", imp:true},
+        {lbl:"Trend parte 2 — fechar com alunos do Dia 1", time:"ao longo do dia", resp:"ra", imp:true},
+      ]},
+      { title: "Encerramento", items: [
+        {lbl:"Encerramento geral — Verena + time", time:"5:20 PM · 30min", resp:"ra"},
+      ]},
+      { title: "Stories — Ana", items: [
+        {lbl:"Cobrir stories do encerramento", time:"o dia todo", resp:"a"},
+        {lbl:"Melhores momentos dos 3 dias", time:"5:20 PM em diante", resp:"a"},
+      ]},
+    ]
+  }
+];
+
+// Load state from localStorage
+const STORAGE_KEY = 'rna-gravacoes-state';
+let state;
+try {
+  const saved = localStorage.getItem(STORAGE_KEY);
+  state = saved ? JSON.parse(saved) : null;
+} catch(e) { state = null; }
+if (!state || state.length !== days.length) {
+  state = days.map(d => d.sections.map(s => s.items.map(() => false)));
+}
+
+function saveState() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e) {}
+}
+
+let cur = 0;
+
+function render() {
+  const d = days[cur], s = state[cur];
+  document.getElementById('theme-bar').textContent = d.theme;
+
+  let tot = 0, dn = 0;
+  s.forEach(sec => sec.forEach(v => { tot++; if (v) dn++; }));
+  const pct = tot ? Math.round(dn / tot * 100) : 0;
+  document.getElementById('prog-label').textContent = `${dn} de ${tot} concluídos`;
+  document.getElementById('prog-pct').textContent = pct + '%';
+  document.getElementById('pbar').style.width = pct + '%';
+
+  document.getElementById('alerts').innerHTML = d.alerts
+    .map(a => `<div class="alert"><strong>Lembrete:</strong> ${a}</div>`).join('');
+
+  let html = '';
+  d.sections.forEach((sec, si) => {
+    html += `<div class="section"><div class="section-title">${sec.title}</div><div class="items">`;
+    sec.items.forEach((item, ii) => {
+      const isDone = s[si][ii];
+      let bClass = 'badge-gray', bLabel = '—';
+      if (item.imp) { bClass = 'badge-imp'; bLabel = 'Urgente'; }
+      else if (item.resp === 'r') { bClass = 'badge-r'; bLabel = 'Richard'; }
+      else if (item.resp === 'a') { bClass = 'badge-a'; bLabel = 'Ana'; }
+      else if (item.resp === 'ra') { bClass = 'badge-ra'; bLabel = 'Ambos'; }
+      html += `<div class="item${isDone ? ' done' : ''}" onclick="toggle(${si},${ii})">
+        <div class="chk">
+          <svg class="chk-icon" width="10" height="8" viewBox="0 0 10 8" fill="none">
+            <polyline points="1,4 4,7 9,1" stroke="#0e0e0f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="item-body">
+          <div class="item-lbl">${item.lbl}</div>
+          ${item.sub ? `<div class="item-sub">${item.sub}</div>` : ''}
+        </div>
+        <div class="item-right">
+          <span class="item-time">${item.time || ''}</span>
+          <span class="badge ${bClass}">${bLabel}</span>
+        </div>
+      </div>`;
+    });
+    html += `</div></div>`;
+  });
+  document.getElementById('sections').innerHTML = html;
+}
+
+function toggle(si, ii) {
+  state[cur][si][ii] = !state[cur][si][ii];
+  saveState();
+  render();
+}
+
+function switchDay(d) {
+  cur = d;
+  document.querySelectorAll('.tab').forEach((t, i) => t.classList.toggle('active', i === d));
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  render();
+}
+
+render();
+</script>
+</body>
+</html>
